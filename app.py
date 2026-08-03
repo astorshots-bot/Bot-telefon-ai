@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+from streamlit.components.v1 import html
 
 # Konfiguracja strony
 st.set_page_config(
@@ -9,40 +10,42 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Zaawansowany styl CSS usuwający stopkę, pasek Streamlita oraz nadający wygląd klasy Enterprise
+# Skrypt JS usuwający pływający przycisk Streamlita z poziomu przeglądarki
+hide_badge_script = """
+<script>
+    const removeBadge = () => {
+        const body = window.parent.document.body;
+        const observer = new MutationObserver((mutations) => {
+            const badge = window.parent.document.querySelector('[data-testid="stDecoration"], footer, iframe[title="streamlit_badge"], div[class*="viewerBadge"]');
+            if (badge) {
+                badge.remove();
+            }
+        });
+        observer.observe(body, { childList: true, subtree: true });
+    };
+    if (window.parent.document.readyState === 'complete') {
+        removeBadge();
+    } else {
+        window.parent.window.addEventListener('load', removeBadge);
+    }
+</script>
+"""
+html(hide_badge_script, height=0)
+
+# Zaawansowany styl CSS
 enterprise_css = """
     <style>
-    /* Agresywne ukrycie elementów Streamlita i paska w prawym dolnym rogu */
     #MainMenu {visibility: hidden !important;}
     header {visibility: hidden !important;}
     footer {visibility: hidden !important;}
     .stDeployButton {display: none !important;}
-    div[data-testid="stStatusWidget"] {display: none !important;}
     
-    /* Ukrycie pływającego badge'a "Hosted with Streamlit" */
-    footer, [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
-        display: none !important;
-    }
-    iframe[title="streamlit_badge"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-    div[class*="viewerBadge"] {
-        display: none !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
-    /* Wygląd ogólny tła i typografii */
     .main {
         background: linear-gradient(135deg, #070913 0%, #0b0f19 100%);
         color: #f8fafc;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* Karty i kontenery w stylu Glassmorphism */
     .enterprise-card {
         background: rgba(30, 41, 59, 0.7);
         border: 1px solid rgba(51, 65, 85, 0.8);
@@ -52,7 +55,6 @@ enterprise_css = """
         margin-bottom: 20px;
     }
 
-    /* Przyciski korporacyjne */
     .stButton>button {
         background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
         color: white;
@@ -62,15 +64,12 @@ enterprise_css = """
         padding: 0.6rem 1.2rem;
         width: 100%;
         box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-        transition: all 0.3s ease;
     }
     .stButton>button:hover {
         background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
         border-color: #38bdf8;
     }
 
-    /* Pola tekstowe */
     .stTextInput>div>div>input {
         background-color: #0f172a;
         color: #f8fafc;
@@ -78,15 +77,11 @@ enterprise_css = """
         border-radius: 8px;
         padding: 10px;
     }
-    .stTextInput>div>div>input:focus {
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-    }
     </style>
 """
 st.markdown(enterprise_css, unsafe_allow_html=True)
 
-# Nagłówek główny w stylu korporacyjnym
+# Nagłówek główny
 st.markdown("""
     <div style="padding: 20px 0;">
         <span style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Enterprise Intelligence v2.4</span>
@@ -97,7 +92,7 @@ st.markdown("""
 
 st.divider()
 
-# Sekcja robocza w nowoczesnej karcie
+# Sekcja robocza
 st.markdown('<div class="enterprise-card">', unsafe_allow_html=True)
 st.markdown("### 🔍 Moduł Skanowania i Ekstrakcji Danych")
 
@@ -179,7 +174,7 @@ if scan_button:
 
 st.divider()
 
-# Cennik B2B w profesjonalnych ramkach
+# Cennik B2B
 st.markdown("### 💼 Plany Licencyjne dla Korporacji i Agencji")
 st.write("Wybierz model dostępu operacyjnego dla swojego zespołu.")
 
@@ -212,4 +207,4 @@ with plan_col2:
         </div>
     """, unsafe_allow_html=True)
     st.link_button("Aktywuj Licencję Agency", "https://buy.stripe.com/twoj_link_agency")
-    
+                            
