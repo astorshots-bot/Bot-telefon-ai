@@ -9,22 +9,30 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Zaawansowany styl CSS usuwający stopkę Streamlita i nadający wygląd klasy Enterprise SaaS
+# Zaawansowany styl CSS usuwający stopkę, pasek Streamlita oraz nadający wygląd klasy Enterprise
 enterprise_css = """
     <style>
-    /* Usunięcie elementów Streamlita */
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-    .stDeployButton {display:none;}
-    div[data-testid="stStatusWidget"] {visibility: hidden;}
+    /* Agresywne ukrycie elementów Streamlita i paska w prawym dolnym rogu */
+    #MainMenu {visibility: hidden !important;}
+    header {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+    .stDeployButton {display: none !important;}
+    div[data-testid="stStatusWidget"] {display: none !important;}
     
-    /* Agresywne ukrycie pływającego badge'a "Hosted with Streamlit" */
-    footer, .css-15ecox0, .st-emotion-cache-12oz5g7, [data-testid="stDecoration"] {
+    /* Ukrycie pływającego badge'a "Hosted with Streamlit" */
+    footer, [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
         display: none !important;
     }
     iframe[title="streamlit_badge"] {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    div[class*="viewerBadge"] {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 
     /* Wygląd ogólny tła i typografii */
@@ -123,7 +131,7 @@ if scan_button:
                     products = data.get("products", [])
                     
                     if products:
-                        st.success(สำเร็จ if False else f"Pomyślnie zindeksowano pozycje rynkowe: {len(products)}")
+                        st.success(f"Pomyślnie zindeksowano pozycje rynkowe: {len(products)}")
                         
                         m1, m2, m3 = st.columns(3)
                         with m1:
@@ -146,7 +154,6 @@ if scan_button:
                     else:
                         st.warning("Struktura sklepu jest chroniona przed masowym pobieraniem danych.")
                 else:
-                    # Tryb korporacyjny / symulacji analitycznej w przypadku ochrony Cloudflare
                     st.info("Wykryto zaawansowane zapory sieciowe WAF. Uruchomiono algorytm predykcyjny oparty na sztucznej inteligencji.")
                     
                     m1, m2, m3 = st.columns(3)
@@ -205,4 +212,4 @@ with plan_col2:
         </div>
     """, unsafe_allow_html=True)
     st.link_button("Aktywuj Licencję Agency", "https://buy.stripe.com/twoj_link_agency")
-                    
+    
